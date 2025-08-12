@@ -1,11 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using IA2;
 
 public class FastEnemy : EnemyGlobal
 {
     FastEnemyView _view;
+    FastEnemyCollisions _collisions;
     EventFSM<FastStates> _stateMachine;
     [SerializeField] float _attackCooldown;
     float _attackTimer;
@@ -13,12 +15,15 @@ public class FastEnemy : EnemyGlobal
     Node _currentDestiny;
     [SerializeField] float _minDist = 0.25f;
     Rigidbody2D _rb;
+
+   public event Action<bool> OnLanded = delegate { };
     
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
 
         _view = new FastEnemyView(this);
+        _collisions = new FastEnemyCollisions(this);
 
         #region State Creator
 
@@ -126,7 +131,17 @@ public class FastEnemy : EnemyGlobal
 
     void Jump()
     {
-        //Metodo salto
+        _rb.velocity = _jumpVelocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        _collisions.OnCollisionEnter2D(collision);
+    }
+
+    void ChangeInWall()
+    {
+        ChangeState(FastStates.Recalculate);
     }
 
     public enum FastStates
