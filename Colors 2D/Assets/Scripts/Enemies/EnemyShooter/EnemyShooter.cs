@@ -12,6 +12,7 @@ public class EnemyShooter : EnemyGlobal
     [SerializeField] float _minDistPatrolPoints;
     public List<Node> patrolPoints;
     [SerializeField] Transform _spawnPointShoot;
+    [SerializeField] float _shootDistance;
     int _indexPatrol;
 
     private void Awake()
@@ -65,11 +66,19 @@ public class EnemyShooter : EnemyGlobal
                  Shoot();
                  _shootTimer = 0;
              }
+
+             var playerPos = _player.transform.position - transform.position;
+
+             if(playerPos.sqrMagnitude >= _shootDistance * _shootDistance)
+             {
+                 ChangeState(ShooterStates.Patrol);
+             }
          };
 
         attack.OnExit += x =>
          {
              _shootTimer = 0;
+             _player = null;
          };
 
 
@@ -81,7 +90,7 @@ public class EnemyShooter : EnemyGlobal
 
     void ChangeState(ShooterStates state) => _stateMachine.SendInput(state);
 
-    // Update is called once per frame
+   
     void Update()
     {
         _stateMachine.Update();
