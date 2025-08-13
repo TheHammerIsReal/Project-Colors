@@ -139,9 +139,10 @@ public class FastEnemy : EnemyGlobal
         _collisions.OnCollisionEnter2D(collision);
     }
 
-    void ChangeInWall()
+    public void ChangeAfterJump(bool onWall)
     {
         ChangeState(FastStates.Recalculate);
+        OnLanded(onWall);
     }
 
     public enum FastStates
