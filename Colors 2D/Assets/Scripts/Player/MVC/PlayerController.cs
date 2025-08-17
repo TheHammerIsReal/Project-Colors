@@ -10,6 +10,8 @@ public class PlayerController
     InputAction _changeColor;
     InputAction _meshColor;
     InputAction _saveTin;
+    InputAction _rotation;
+    bool _locked = false;
 
     public Vector2 dir;
 
@@ -19,6 +21,11 @@ public class PlayerController
         _inputs = new PlayerInputs();
         BindActions(_inputs);
         BindEvents(player, model , collisions, _inputs);
+    }
+
+    void LockScheme(ref PlayerInputs input)
+    {
+        //_inputs.
     }
 
     void BindActions(PlayerInputs inputs)
@@ -40,6 +47,9 @@ public class PlayerController
 
         _saveTin = inputs.Player.SaveTin;
         _saveTin.Enable();
+
+        _rotation = inputs.Player.Rotation;
+        _rotation.Enable();
     }
 
     void BindEvents(Player player, PlayerModel model , Player_Collisions collisions , PlayerInputs inputs)
@@ -62,14 +72,8 @@ public class PlayerController
         dir = _inputs.Player.Move.ReadValue<Vector2>();
     }
 
-    public Quaternion MouseController(Transform transform , Vector3 mousePos)
+    public Vector3 MousePosition()
     {
-        mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-        Vector3 rotation = mousePos - transform.position;
-
-        float rotZ = Mathf.Atan2(rotation.y, rotation.x) * Mathf.Rad2Deg;
-
-        return Quaternion.Euler(0, 0, rotZ);
+        return _rotation.ReadValue<Vector2>();
     }
 }

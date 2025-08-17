@@ -93,17 +93,32 @@ public class Player : MonoBehaviour , IDamageable
         _controller.InputListener(_model);
         _model.Update();
 
-        _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-
-
-        if (Input.GetKeyDown(KeyCode.T)) transform.position = _testTransform.position;
 
         if (_aim)
         {
-           // transform.rotation = _controller.MouseController(transform, _mousePos);
-            _view.TargetUpdate(_target,transform, _mousePos, _radiusTarget, spawnPointShoot);
+            // transform.rotation = _controller.MouseController(transform, _mousePos);
+
+            if(Gamepad.current!=null && Gamepad.current.rightStick.IsActuated())
+            {
+                _mousePos = _controller.MousePosition();
+                Vector3 targetPos = transform.position + _mousePos.normalized * _radiusTarget;
+                _view.TargetUpdate(_target, transform, targetPos, _radiusTarget, spawnPointShoot);
+            }
+
+            else
+            {
+                _mousePos = Camera.main.ScreenToWorldPoint(_controller.MousePosition());
+                _view.TargetUpdate(_target, transform, _mousePos, _radiusTarget, spawnPointShoot);
+            }
+
+
             dir = _target.transform.position - transform.position;
         }
+
+        
+
+
+        if (Input.GetKeyDown(KeyCode.T)) transform.position = _testTransform.position;
 
     }
 

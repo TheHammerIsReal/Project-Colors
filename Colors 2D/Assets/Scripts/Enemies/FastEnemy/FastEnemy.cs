@@ -15,12 +15,15 @@ public class FastEnemy : EnemyGlobal
     Node _currentDestiny;
     [SerializeField] float _minDist = 0.25f;
     Rigidbody2D _rb;
+    [SerializeField] float _jumpTime;
+    float _gravity;
 
    public event Action<bool> OnLanded = delegate { };
     
     private void Awake()
     {
         _rb = GetComponent<Rigidbody2D>();
+        _gravity = Physics2D.gravity.y * _rb.gravityScale;
 
         _view = new FastEnemyView(this);
         _collisions = new FastEnemyCollisions(this);
@@ -73,7 +76,7 @@ public class FastEnemy : EnemyGlobal
 
         calculate.OnEnter += x =>
         {
-            CalculateJump(transform, _player);
+            _jumpVelocity = CalculateJump(transform, _player, _jumpTime, _gravity);
         };
 
         calculate.OnUpdate += () =>
@@ -93,12 +96,13 @@ public class FastEnemy : EnemyGlobal
 
         attack.OnEnter += x =>
         {
-            Jump();
+            Jump(_jumpVelocity);
         };
 
         #endregion
 
         _stateMachine = new EventFSM<FastStates>(patrol);
+        OnLanded += _view.LandedAnimation;
     }
 
     void ChangeState(FastStates state) => _stateMachine.SendInput(state);
@@ -124,14 +128,20 @@ public class FastEnemy : EnemyGlobal
         return destiny.transform.position - transform.position;
     }
 
-    void CalculateJump(Transform transform, Player player)
+    Vector3 CalculateJump(Transform transform, Player player, float time, float gravity)
     {
         //Metodo calcular salto
+
+        var x = (player.transform.position.x - transform.position.x) / time;
+
+        var y = (player.transform.position.y - transform.position.y - 0.5f * gravity * time * time) / time;
+
+        return new Vector3(x, y);
     }
 
-    void Jump()
+    void Jump(Vector3 velocity)
     {
-        _rb.velocity = _jumpVelocity;
+        _rb.velocity = velocity;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
